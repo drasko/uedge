@@ -4,12 +4,12 @@ Mainflux micro-edge seervice.
 ## Install
 
 ```
-git clone
+git clone git@github.com:drasko/uedge.git
 ```
 
 ### Compile
 
-### OpenWrt
+#### OpenWrt
 Follow the instructions [here](https://github.com/japaric/rust-cross) to add `mips-unknown-linux-musl` target.
 
 Additionally, in `~/.cargo/config` add OpenWrt target library path (obtained after OpenWrt buld)
@@ -37,7 +37,7 @@ OPENSSL_SEARCH_PATH=/home/drasko/openwrt/staging_dir/target-mips_24kc_musl/usr C
 > enables Paho MQTT static build and OpenSSL lib finding must be applied.
 >
 
-Also, note that if dynamic linking is needed, than `paho.mqtt.rust/paho-mqtt-sys/build.rs` should be changed
+Also, note that if dynamic linking is needed, than `paho.mqtt.rust/paho-mqtt-sys/build.rs` should be
 ```
 if cfg!(feature = "ssl") {
   println!("cargo:rustc-link-lib=ssl");
@@ -53,13 +53,22 @@ drasko@Marx:~/rust/uedge$ ls -la target/mips-unknown-linux-musl/release/uedge
 -rwxr-xr-x 1 drasko drasko 314564 May  9 01:11 target/mips-unknown-linux-musl/release/uedge
 ```
 
-### Deploy
+For static linking of `libssl` and `libcrypto` use:
+Also, note that if dynamic linking is needed, than `paho.mqtt.rust/paho-mqtt-sys/build.rs` should be
+```
+if cfg!(feature = "ssl") {
+  println!("cargo:rustc-link-lib=static=ssl");
+  println!("cargo:rustc-link-lib=static=crypto");
+}
+```
+
+#### Deploy
 Binary can be further optimized by stripping:
 ```
 mips-openwrt-linux-strip target/mips-unknown-linux-musl/release/uedge
 ```
 
-Then it can be bruttaly compressed with [upx]():
+Then it can be bruttaly compressed with [upx](https://upx.github.io/):
 ```
 upx --ultra-brute target/mips-unknown-linux-musl/release/uedge
 ```
@@ -71,7 +80,7 @@ scp target/mips-unknown-linux-musl/release/uedge root@lima.local:/tmp
 
 Execute:
 ```
-root@Lima:/# RUST_LOG=debug tmp/uedge 
+RUST_LOG=debug /tmp/uedge
 ```
 
 ## License
